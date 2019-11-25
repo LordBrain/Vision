@@ -9,15 +9,21 @@
 
 <body>
 
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark" aria-label="breadcrumb">
 	  <h1 class="nav-brand">Vision</h1>
+	  {{if .ParentAlbum }}
+	  	<ol class="breadcrumb bg-dark">
+		  	<li class="breadcrumb-item"><a href="../index.html">{{.ParentAlbum}}</a></li>
+    		<li class="breadcrumb-item active" aria-current="page">{{.Name}}</li>
+ 		 </ol>
+	  {{end}}
 	</nav> 
 
 
 	{{ $length := len .SubAlbum }} {{ if gt $length 0 }}
 		<section id="subAlbum" >
 			{{ range .SubAlbum}}{{$subName := .Name}}
-			<p>
+			
 				<div class="card" style="width:400px">
 					<img class="card-img-top" src="./{{$subName}}/visionimg/thumb_{{(index .AlbumImages 0).Name}}" alt="Card image">
 					<div class="card-body">
@@ -26,7 +32,7 @@
 						<a href="./{{.Name}}/index.html" class="stretched-link"></a>
 					</div>
 				</div>
-			</p>	
+			
 			{{end}}
 		</section>
 	{{end}}
