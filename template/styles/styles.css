@@ -21,11 +21,16 @@ body {
 	font-size: 20px;
 }
 
+.card{
+	margin: 10px;
+}
+
 #subAlbum {
 	display: flex;
 	flex-wrap: wrap;
 	margin: 5px;
-	justify-content: space-evenly}
+	justify-content: space-between
+}
 
 /* Images Layout */
 #photos {
@@ -42,6 +47,7 @@ body {
 
 	width: 90%;
 	margin: 0 auto;
+	padding-top: 10px;
  }
  
  #photos img {
