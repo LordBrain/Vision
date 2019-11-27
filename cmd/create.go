@@ -74,7 +74,9 @@ func GenAlbums(startPath string, folders []Folders) []Album {
 	var allAlbums []Album
 	for _, things := range folders {
 		var newAlbum Album
+		betterName := strings.ReplaceAll(things.Name, "_", " ")
 		newAlbum.Name = things.Name
+		newAlbum.BetterName = betterName
 		newAlbum.Path = things.Path
 		var images []AlbumImages
 
@@ -102,7 +104,9 @@ func GenAlbums(startPath string, folders []Folders) []Album {
 		for _, subalbumDetails := range allAlbums {
 			if subalbumDetails.ParentAlbum == albumDetails.Name {
 				var newSubalbum SubAlbum
+				betterName := strings.ReplaceAll(subalbumDetails.Name, "_", " ")
 				newSubalbum.Name = subalbumDetails.Name
+				newSubalbum.BetterName = betterName
 				newSubalbum.PathName = subalbumDetails.Path
 				// pick random images from subalbumDetails, then add those to newSubalbum images
 				var randomSubImage []AlbumImages
