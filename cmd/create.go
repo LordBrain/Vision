@@ -1,7 +1,12 @@
 package cmd
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
+	"io"
+	"io/ioutil"
+
 	//image libraries.
 	_ "image/gif"
 	_ "image/jpeg"
@@ -16,6 +21,7 @@ import (
 	"time"
 
 	"github.com/disintegration/imaging"
+	"gopkg.in/yaml.v2"
 )
 
 //GetFolders Gets all the sub folders and returns a slice with the path and folder name
@@ -74,6 +80,7 @@ func GenAlbums(startPath string, folders []Folders) []Album {
 	var allAlbums []Album
 	for _, things := range folders {
 		var newAlbum Album
+		var albumContents []AlbumContents
 		betterName := strings.ReplaceAll(things.Name, "_", " ")
 		newAlbum.Name = things.Name
 		newAlbum.BetterName = betterName
@@ -84,15 +91,31 @@ func GenAlbums(startPath string, folders []Folders) []Album {
 
 		for _, fileThings := range dir {
 			var imageName AlbumImages
+			var imageDetails AlbumContents
 			if !fileThings.IsDir() {
 				// match only these file names
 				if filepath.Ext(fileThings.Name()) == ".jpg" || filepath.Ext(fileThings.Name()) == ".jpeg" || filepath.Ext(fileThings.Name()) == ".png" || filepath.Ext(fileThings.Name()) == ".gif" || filepath.Ext(fileThings.Name()) == ".tiff" {
 					imageName.Name = fileThings.Name()
 					images = append(images, imageName)
+					imageDetails.ImageName = imageName.Name
+					fullFilePath := newAlbum.Path + "/" + imageName.Name
+					md5Sum, err := hash_file_md5(fullFilePath)
+					if err != nil {
+						fmt.Println(err)
+					}
+					imageDetails.MD5Sum = md5Sum
+					albumContents = append(albumContents, imageDetails)
 				}
 			}
 			newAlbum.AlbumImages = images
 		}
+
+		//Write image details yaml
+		yamlDetails, err := yaml.Marshal(albumContents)
+		if err != nil {
+			fmt.Println("Error marshaling yaml")
+		}
+		err = ioutil.WriteFile(newAlbum.Path+"/visionimg/details.yaml", yamlDetails, 0777)
 
 		if startPath != things.Path {
 			newAlbum.ParentAlbum = things.ParentName
@@ -182,4 +205,37 @@ func GenImages(imagePath string, width int) error {
 		return err
 	}
 	return nil
+}
+
+//hash_file_md5 returns the MD5 sum of a image
+//Taken from https://mrwaggel.be/post/generate-md5-hash-of-a-file-in-golang/
+func hash_file_md5(filePath string) (string, error) {
+	//Initialize variable returnMD5String now in case an error has to be returned
+	var returnMD5String string
+
+	//Open the passed argument and check for any error
+	file, err := os.Open(filePath)
+	if err != nil {
+		return returnMD5String, err
+	}
+
+	//Tell the program to call the following function when the current function returns
+	defer file.Close()
+
+	//Open a new hash interface to write to
+	hash := md5.New()
+
+	//Copy the file in the hash interface and check for any error
+	if _, err := io.Copy(hash, file); err != nil {
+		return returnMD5String, err
+	}
+
+	//Get the 16 bytes hash
+	hashInBytes := hash.Sum(nil)[:16]
+
+	//Convert the bytes to a string
+	returnMD5String = hex.EncodeToString(hashInBytes)
+
+	return returnMD5String, nil
+
 }

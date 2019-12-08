@@ -12,6 +12,7 @@ require (
 	github.com/gobuffalo/gogen v0.1.1 // indirect
 	github.com/gobuffalo/packr v1.30.1
 	github.com/gobuffalo/syncx v0.1.0 // indirect
+	github.com/google/logger v1.0.1
 	github.com/kr/pty v1.1.4 // indirect
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/rogpeppe/go-internal v1.5.0 // indirect
@@ -20,4 +21,5 @@ require (
 	golang.org/x/net v0.0.0-20190503192946-f4e77d36d62c // indirect
 	golang.org/x/text v0.3.2 // indirect
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
+	gopkg.in/yaml.v2 v2.2.2
 )
