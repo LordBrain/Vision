@@ -2,12 +2,15 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"strconv"
 
 	"github.com/LordBrain/Vision/cmd"
 
+	"github.com/google/logger"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -25,28 +28,26 @@ var (
 )
 
 func main() {
+	defer logger.Init("visonLog", true, false, ioutil.Discard).Close()
+	logger.SetFlags(log.LstdFlags)
 	// kingpin.Parse()
 
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 	// Create new album
 	case create.FullCommand():
-		println("Creating")
+		logger.Info("Creating Albums. If there are a lot of images, this may take a while.")
 		path, _ := filepath.Abs(*createPath)
 		startPath := path
-		fmt.Println("Start Path:", startPath)
+		logger.Info("Albums Root Path: ", startPath)
 		folders := cmd.GetFolders(path)
 
 		allAlbums := cmd.GenAlbums(startPath, folders)
-		fmt.Println("Number of album entries:", len(allAlbums))
+		logger.Info("Number of Albums: ", len(allAlbums))
 
 		for _, album := range allAlbums {
-			fmt.Printf("Album: %s\nNumber of images: %d\n", album.Name, len(album.AlbumImages))
-			fmt.Println("Album Path:", album.Path)
-			if len(album.SubAlbum) > 0 {
-				for _, subalbum := range album.SubAlbum {
-					fmt.Println("Sub album name:", subalbum.Name)
-				}
-			}
+			logger.Info("Album Name: ", album.BetterName)
+			logger.Infof("Number of images in %s: %d", album.BetterName, len(album.AlbumImages))
+
 			//Resize images and create thumbnails
 			for _, imageName := range album.AlbumImages {
 				imagePath := filepath.Join(album.Path, imageName.Name)

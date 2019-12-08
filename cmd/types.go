@@ -32,3 +32,9 @@ type Folders struct {
 	ParentName string
 	Remove     bool
 }
+
+//AlbumContents for saving album content
+type AlbumContents struct {
+	ImageName string `yaml:"image_name"`
+	MD5Sum    string `yaml:"md5_sum"`
+}
