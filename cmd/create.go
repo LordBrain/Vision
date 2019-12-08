@@ -3,7 +3,6 @@ package cmd
 import (
 	"crypto/md5"
 	"encoding/hex"
-	"fmt"
 	"io"
 	"io/ioutil"
 
@@ -11,7 +10,6 @@ import (
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
-	"log"
 	"math/rand"
 	"os"
 	"path/filepath"
@@ -21,6 +19,7 @@ import (
 	"time"
 
 	"github.com/disintegration/imaging"
+	"github.com/google/logger"
 	"gopkg.in/yaml.v2"
 )
 
@@ -40,7 +39,7 @@ func GetFolders(folder string) []Folders {
 		return nil
 	})
 	if err != nil {
-		fmt.Println(err)
+		logger.Error("Failed to walk directories")
 	}
 
 	var tmpFolders []Folders
@@ -101,7 +100,7 @@ func GenAlbums(startPath string, folders []Folders) []Album {
 					fullFilePath := newAlbum.Path + "/" + imageName.Name
 					md5Sum, err := hash_file_md5(fullFilePath)
 					if err != nil {
-						fmt.Println(err)
+						logger.Error("Problem getting MD5 of image.")
 					}
 					imageDetails.MD5Sum = md5Sum
 					albumContents = append(albumContents, imageDetails)
@@ -113,9 +112,12 @@ func GenAlbums(startPath string, folders []Folders) []Album {
 		//Write image details yaml
 		yamlDetails, err := yaml.Marshal(albumContents)
 		if err != nil {
-			fmt.Println("Error marshaling yaml")
+			logger.Error("Error marshaling yaml")
 		}
 		err = ioutil.WriteFile(newAlbum.Path+"/visionimg/details.yaml", yamlDetails, 0777)
+		if err != nil {
+			logger.Error("Problem writing details yaml file.")
+		}
 
 		if startPath != things.Path {
 			newAlbum.ParentAlbum = things.ParentName
@@ -187,7 +189,7 @@ func GenImages(imagePath string, width int) error {
 
 	src, err := imaging.Open(imagePath)
 	if err != nil {
-		log.Fatalf("failed to open image: %v", err)
+		logger.Error("Failed to read image. Unable to create thumbnail/resize.")
 		return err
 	}
 	resize := imaging.Resize(src, width, 0, imaging.Lanczos)
@@ -196,12 +198,12 @@ func GenImages(imagePath string, width int) error {
 	thumbName := filepath.Join(imgDir, "thumb_"+imageName)
 	err = imaging.Save(resize, resizeName)
 	if err != nil {
-		log.Fatalf("failed to save image: %v", err)
+		logger.Error("Failed to save resized image.")
 		return err
 	}
 	err = imaging.Save(thumb, thumbName)
 	if err != nil {
-		log.Fatalf("failed to save image: %v", err)
+		logger.Error("Failed to save thumbnail image.")
 		return err
 	}
 	return nil
