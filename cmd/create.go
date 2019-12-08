@@ -44,16 +44,16 @@ func GetFolders(folder string) []Folders {
 
 	var tmpFolders []Folders
 
-	for _, theFolders := range allFolders {
-		shouldBeHidden := regexp.MustCompile(`^\.+?`).FindString(theFolders.Name)
-		if theFolders.Name == "visionimg" {
+	for _, folderInformation := range allFolders {
+		shouldBeHidden := regexp.MustCompile(`^\.+?`).FindString(folderInformation.Name)
+		if folderInformation.Name == "visionimg" {
 			shouldBeHidden = "visonimg"
 		}
 		if shouldBeHidden != "" {
 			//Remove folders that start with a "." or is called "visionimg"
-			for theFoldersPosition, removeHidden := range allFolders {
-				if strings.Contains(removeHidden.Path, theFolders.Path) {
-					allFolders[theFoldersPosition].Remove = true
+			for folderInformationPosition, removeHidden := range allFolders {
+				if strings.Contains(removeHidden.Path, folderInformation.Path) {
+					allFolders[folderInformationPosition].Remove = true
 				}
 			}
 		}
@@ -77,28 +77,28 @@ func RootAlbum(name string) Album {
 func GenAlbums(startPath string, folders []Folders) []Album {
 
 	var allAlbums []Album
-	for _, things := range folders {
+	for _, albumInformation := range folders {
 		var newAlbum Album
 		var albumContents []AlbumContents
-		betterName := strings.ReplaceAll(things.Name, "_", " ")
-		newAlbum.Name = things.Name
+		betterName := strings.ReplaceAll(albumInformation.Name, "_", " ")
+		newAlbum.Name = albumInformation.Name
 		newAlbum.BetterName = betterName
-		newAlbum.Path = things.Path
+		newAlbum.Path = albumInformation.Path
 		var images []AlbumImages
 
 		dir, _ := ReadDir(newAlbum.Path)
 
-		for _, fileThings := range dir {
+		for _, fileInformation := range dir {
 			var imageName AlbumImages
 			var imageDetails AlbumContents
-			if !fileThings.IsDir() {
+			if !fileInformation.IsDir() {
 				// match only these file names
-				if filepath.Ext(fileThings.Name()) == ".jpg" || filepath.Ext(fileThings.Name()) == ".jpeg" || filepath.Ext(fileThings.Name()) == ".png" || filepath.Ext(fileThings.Name()) == ".gif" || filepath.Ext(fileThings.Name()) == ".tiff" {
-					imageName.Name = fileThings.Name()
+				if filepath.Ext(fileInformation.Name()) == ".jpg" || filepath.Ext(fileInformation.Name()) == ".jpeg" || filepath.Ext(fileInformation.Name()) == ".png" || filepath.Ext(fileInformation.Name()) == ".gif" || filepath.Ext(fileInformation.Name()) == ".tiff" {
+					imageName.Name = fileInformation.Name()
 					images = append(images, imageName)
 					imageDetails.ImageName = imageName.Name
 					fullFilePath := newAlbum.Path + "/" + imageName.Name
-					md5Sum, err := hash_file_md5(fullFilePath)
+					md5Sum, err := hashFileMD5(fullFilePath)
 					if err != nil {
 						logger.Error("Problem getting MD5 of image.")
 					}
@@ -119,8 +119,8 @@ func GenAlbums(startPath string, folders []Folders) []Album {
 			logger.Error("Problem writing details yaml file.")
 		}
 
-		if startPath != things.Path {
-			newAlbum.ParentAlbum = things.ParentName
+		if startPath != albumInformation.Path {
+			newAlbum.ParentAlbum = albumInformation.ParentName
 		}
 
 		allAlbums = append(allAlbums, newAlbum)
@@ -209,9 +209,9 @@ func GenImages(imagePath string, width int) error {
 	return nil
 }
 
-//hash_file_md5 returns the MD5 sum of a image
+//hashFileMD5 returns the MD5 sum of a image
 //Taken from https://mrwaggel.be/post/generate-md5-hash-of-a-file-in-golang/
-func hash_file_md5(filePath string) (string, error) {
+func hashFileMD5(filePath string) (string, error) {
 	//Initialize variable returnMD5String now in case an error has to be returned
 	var returnMD5String string
 
