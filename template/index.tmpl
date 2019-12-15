@@ -25,7 +25,11 @@
 			{{ range .SubAlbum}}{{$subName := .Name}}
 			
 				<div class="card" style="width:400px">
+				{{ if eq (index .AlbumImages 0).Name "placeholder" }}
+					<img class="card-img-top" src="./{{$subName}}/visionimg/album-placeholder.jpg" alt="Card image">
+				{{ else }}
 					<img class="card-img-top" src="./{{$subName}}/visionimg/thumb_{{(index .AlbumImages 0).Name}}" alt="Card image">
+				{{ end }}
 					<div class="card-body">
 						<h4 class="card-title">{{.BetterName}}</h4>
 						<p class="card-text">{{.ImageCount}} Photos</p>

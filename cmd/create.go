@@ -142,6 +142,10 @@ func GenAlbums(startPath string, folders []Folders) []Album {
 					for _, v := range randomize[:4] {
 						randomSubImage = append(randomSubImage, subalbumDetails.AlbumImages[v])
 					}
+				} else if subalbumDetails.AlbumImages == nil {
+					var tempAlbumImages AlbumImages
+					tempAlbumImages.Name = "placeholder"
+					randomSubImage = append(randomSubImage, tempAlbumImages)
 				} else {
 					randomSubImage = append(randomSubImage, subalbumDetails.AlbumImages[0])
 				}
